@@ -1,0 +1,25 @@
+{
+  "imports": {
+
+  },
+  "tasks": {
+    "fetch": "deno run -A main.ts"
+  },
+  "compilerOptions": {
+  },
+  "lint": {
+    "exclude": [
+
+    ],
+    "rules": {
+      "tags": [
+        "recommended"
+      ]
+    }
+  },
+  "fmt": {
+    "exclude": [
+
+    ]
+}
+}
