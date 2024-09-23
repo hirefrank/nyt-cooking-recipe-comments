@@ -64,16 +64,24 @@ async function fetchComments(url: string, offset: number): Promise<any> {
 // deno-lint-ignore no-explicit-any
 function parseComments(comments: any[]): string[][] {
   return comments.map(comment => [
-    `"${comment.commentID}"`,
-    `"${comment.userDisplayName.replace(/"/g, '""')}"`,
-    `"${comment.commentBody.replace(/"/g, '""').replace(/\n/g, ' ')}"`,
-    `"${comment.createDate}"`,
-    `"${comment.recommendations}"`
+    comment.commentID,
+    comment.userDisplayName,
+    comment.commentBody.replace(/\n/g, ' '),
+    comment.createDate,
+    comment.recommendations
   ]);
 }
 
 async function saveCommentsAsCsv(comments: string[][], filename: string) {
-  const csvContent = comments.map(row => row.join(',')).join('\n');
+  const csvContent = comments.map(row =>
+    row.map(field => {
+      if (typeof field === 'string') {
+        return `"${field.replace(/"/g, '""')}"`;
+      } else {
+        return `"${String(field)}"`;
+      }
+    }).join(',')
+  ).join('\n');
   try {
     await Deno.writeTextFile(filename, csvContent);
     console.log(`File ${filename} written successfully.`);
@@ -104,7 +112,7 @@ async function processRecipe(url: string) {
 
   // Extract the recipe number/id from the URL
   const recipeId = url.match(/\/(\d+)-/)?.[1] || 'unknown';
-  const filename = `comments_${recipeId}.csv`;
+  const filename = `csvs/comments_${recipeId}.csv`;
   await saveCommentsAsCsv(allComments, filename);
   console.log(`Saved comments for ${url} to ${filename}`);
 }

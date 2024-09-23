@@ -1,16 +1,19 @@
 {
   "imports": {
-
+    "@std/csv": "jsr:@std/csv@^1.0.3",
+    "@std/fs": "jsr:@std/fs@^0.224.0",
+    "@std/http": "jsr:@std/http@^1.0.6",
+    "@std/path": "jsr:@std/path@^0.224.0"
   },
   "tasks": {
-    "fetch": "deno run -A main.ts"
+    "fetch": "deno run -A main.ts",
+    "analyze": "deno run -A analyze.ts",
+    "sentiment": "deno run -A sentiment.ts"
   },
   "compilerOptions": {
   },
   "lint": {
-    "exclude": [
-
-    ],
+    "exclude": [],
     "rules": {
       "tags": [
         "recommended"
@@ -18,8 +21,6 @@
     }
   },
   "fmt": {
-    "exclude": [
-
-    ]
-}
+    "exclude": []
+  }
 }
