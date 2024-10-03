@@ -3,12 +3,15 @@
     "@std/csv": "jsr:@std/csv@^1.0.3",
     "@std/fs": "jsr:@std/fs@^0.224.0",
     "@std/http": "jsr:@std/http@^1.0.6",
-    "@std/path": "jsr:@std/path@^0.224.0"
+    "@std/path": "jsr:@std/path@^0.224.0",
+    "openai": "https://deno.land/x/openai@v4.62.1/mod.ts",
+    "dotenv": "https://deno.land/x/dotenv@v3.2.2/mod.ts"
   },
   "tasks": {
     "fetch": "deno run -A main.ts",
     "analyze": "deno run -A analyze.ts",
-    "sentiment": "deno run -A sentiment.ts"
+    "sentiment": "deno run -A sentiment.ts",
+    "summaries": "deno run -A summaries.ts"
   },
   "compilerOptions": {
   },

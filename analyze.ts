@@ -1,6 +1,6 @@
 import { walk } from "@std/fs";
 import { parse } from "@std/csv/parse";
-
+import { recipeMapping } from "./recipeMapping.ts";
 interface Comment {
   CommentID: string;
   UserDisplayName: string;
@@ -56,11 +56,17 @@ function parseDate(unixTimestamp: string): string {
   return date.toISOString();
 }
 
+function stripHtmlTags(str: string): string {
+  return str.replace(/<[^>]*>/g, '');
+}
+
 function cleanData(comments: Comment[]): Comment[] {
   return comments.map((comment) => ({
     ...comment,
     Recommendations: comment.Recommendations.replace(/[^0-9]/g, ""),
     CreateDate: parseDate(comment.CreateDate),
+    CommentBody: stripHtmlTags(comment.CommentBody),
+    UserDisplayName: stripHtmlTags(comment.UserDisplayName),
   }));
 }
 
@@ -133,10 +139,52 @@ async function main() {
             c.CreateDate,
             c.Recommendations,
             c.RecipeID
-          ].map(field => `"${field.replace(/"/g, '""')}"`).join(',')
+          ].map(field => {
+            // Convert to string and escape special characters
+            const escaped = String(field)
+              .replace(/"/g, '""')  // Double up quotes
+              .replace(/\n/g, '\\n')  // Escape newlines
+              .replace(/\r/g, '\\r')  // Escape carriage returns
+            // Wrap in quotes if the field contains any special characters
+            return /[",\n\r]/.test(escaped) ? `"${escaped}"` : escaped;
+          }).join(',')
         )).join("\n")
     );
     console.log("\nCleaned data saved to 'cleaned_recipe_comments.csv'");
+
+    // create a markdown file of the cleaned data
+    const MAX_WORDS = 500000;
+    let fileIndex = 1;
+    let currentWords = 0;
+    let currentContent = "";
+
+    for (const c of cleanedComments) {
+      const commentContent = `### Recipe: ${recipeMapping[c.RecipeID as keyof typeof recipeMapping] ?? `Unknown Recipe (ID: ${c.RecipeID})`}\n\n` +
+        `- **Comment ID:** ${c.CommentID}\n` +
+        `- **User Display Name:** ${c.UserDisplayName}\n` +
+        `- **Comment Body:** ${c.CommentBody}\n` +
+        `- **Create Date:** ${c.CreateDate}\n` +
+        `- **Recommendations:** ${c.Recommendations}\n\n---\n\n`;
+
+      const wordCount = commentContent.split(/\s+/).length;
+
+      if (currentWords + wordCount > MAX_WORDS) {
+        await Deno.writeTextFile(`cleaned_recipe_comments_${fileIndex}.md`, currentContent);
+        fileIndex++;
+        currentWords = 0;
+        currentContent = "";
+      }
+
+      currentContent += commentContent;
+      currentWords += wordCount;
+    }
+
+    if (currentContent) {
+      await Deno.writeTextFile(`cleaned_recipe_comments_${fileIndex}.md`, currentContent);
+    }
+
+    console.log(`\nCleaned data saved to ${fileIndex} file(s): cleaned_recipe_comments_1.md to cleaned_recipe_comments_${fileIndex}.md`);
+
   } catch (error) {
     console.error("An error occurred:", error.message);
   }
