@@ -130,7 +130,7 @@ async function main() {
 
     // Save the cleaned data for further analysis
     await Deno.writeTextFile("cleaned_recipe_comments.csv",
-      ['CommentID,UserDisplayName,CommentBody,CreateDate,Recommendations,RecipeID']
+      ['CommentID||UserDisplayName||CommentBody||CreateDate||Recommendations||RecipeID']
         .concat(cleanedComments.map(c =>
           [
             c.CommentID,
@@ -140,14 +140,12 @@ async function main() {
             c.Recommendations,
             c.RecipeID
           ].map(field => {
-            // Convert to string and escape special characters
             const escaped = String(field)
-              .replace(/"/g, '""')  // Double up quotes
-              .replace(/\n/g, '\\n')  // Escape newlines
-              .replace(/\r/g, '\\r')  // Escape carriage returns
-            // Wrap in quotes if the field contains any special characters
-            return /[",\n\r]/.test(escaped) ? `"${escaped}"` : escaped;
-          }).join(',')
+              .replace(/"/g, '""')
+              .replace(/\n/g, '\\n')
+              .replace(/\r/g, '\\r')
+            return /["||\n\r]/.test(escaped) ? `"${escaped}"` : escaped;
+          }).join('||')
         )).join("\n")
     );
     console.log("\nCleaned data saved to 'cleaned_recipe_comments.csv'");

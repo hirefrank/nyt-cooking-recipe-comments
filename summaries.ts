@@ -11,7 +11,7 @@ const openai = new OpenAI({
 
 const model = "gpt-4o-mini";
 const csvFolder = "./csvs";
-const outputFile = "summaries.txt";
+const outputFile = "summaries.md";
 
 async function summarizeCSV(csvContent: string): Promise<string> {
   const response = await openai.chat.completions.create({
@@ -77,7 +77,7 @@ Structure your response as follows:
 
 Remember to always mention the specific recipe titles when discussing trends or quoting comments. Present your analysis in a clear, well-organized manner, using appropriate headings and subheadings to structure your response.
 
-Begin your analysis now, presenting your findings in the structure outlined above.`
+Begin your analysis now, presenting your findings in the structure outlined above. Use markdown formatting for your response, including appropriate headers, lists, and emphasis where needed.`
       }
     ]
   });
@@ -86,7 +86,7 @@ Begin your analysis now, presenting your findings in the structure outlined abov
 }
 
 async function processCSVFiles() {
-  let summaries = "";
+  let summaries = "# Recipe Comment Analysis\n\n";
   const limit = parseInt(Deno.env.get("LIMIT") || "Infinity");
   let processedCount = 0;
 
@@ -95,7 +95,7 @@ async function processCSVFiles() {
 
     const csvContent = await Deno.readTextFile(entry.path);
     const summary = await summarizeCSV(csvContent);
-    summaries += `File: ${entry.name}\n\n${summary}\n\n---\n\n`;
+    summaries += `## File: ${entry.name}\n\n${summary}\n\n---\n\n`;
 
     processedCount++;
   }

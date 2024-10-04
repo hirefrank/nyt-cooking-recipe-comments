@@ -10,8 +10,8 @@
   "tasks": {
     "fetch": "deno run -A main.ts",
     "analyze": "deno run -A analyze.ts",
-    "sentiment": "deno run -A sentiment.ts",
-    "summaries": "deno run -A summaries.ts"
+    "summaries": "deno run -A summaries.ts",
+    "categorize": "deno run -A categorize.ts"
   },
   "compilerOptions": {
   },
